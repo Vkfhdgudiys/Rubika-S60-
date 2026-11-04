@@ -37,7 +37,8 @@ jobs:
             -bootclasspath lib/cldcapi11.jar \
             -classpath lib/midp21.jar \
             -d build/classes src/RubikaS60.java
-                - name: Package JAR
+       
+      - name: Package JAR
         run: |
           mkdir -p build
           cat > build/MANIFEST.MF <<'EOF'
