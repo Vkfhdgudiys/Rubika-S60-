@@ -9,6 +9,9 @@ public class RubikaS60 extends MIDlet implements CommandListener {
     private Form form;
     private TextField serverField;
     private StringItem statusItem;
+    private StringItem nameItem;
+    private StringItem versionItem;
+    private StringItem messageItem;
     private Command testCommand;
     private Command exitCommand;
 
@@ -29,9 +32,15 @@ public class RubikaS60 extends MIDlet implements CommandListener {
 
             form.append(serverField);
 
-            statusItem = new StringItem("Status: ", "Not connected");
+            statusItem = new StringItem("Connection: ", "Not connected");
+nameItem = new StringItem("Server: ", "Unknown");
+versionItem = new StringItem("Version: ", "-");
+messageItem = new StringItem("Message: ", "-");
 
-            form.append(statusItem);
+form.append(statusItem);
+form.append(nameItem);
+form.append(versionItem);
+form.append(messageItem);
 
             testCommand = new Command("Test", Command.SCREEN, 1);
             exitCommand = new Command("Exit", Command.EXIT, 2);
@@ -94,11 +103,22 @@ resultBuffer.append('\n');
 resultBuffer.append(body.toString());
 final String result = resultBuffer.toString();
 
-            display.callSerially(new Runnable() {
-                public void run() {
-                    statusItem.setText(result);
-                }
-            });
+            final String serverName = getJsonValue(body.toString(), "name");
+final String serverVersion = getJsonValue(body.toString(), "version");
+final String serverStatus = getJsonValue(body.toString(), "status");
+final String serverMessage = getJsonValue(body.toString(), "message");
+
+final String connectionStatus =
+    code == 200 ? "Online" : "HTTP " + code;
+
+display.callSerially(new Runnable() {
+    public void run() {
+        statusItem.setText(connectionStatus);
+        nameItem.setText(serverName);
+        versionItem.setText(serverVersion);
+        messageItem.setText(serverMessage);
+    }
+});
 
         } catch (final Exception error) {
             display.callSerially(new Runnable() {
@@ -108,6 +128,9 @@ errorBuffer.append("Connection failed: ");
 errorBuffer.append(error.toString());
 final String result = errorBuffer.toString();
 statusItem.setText(result);
+nameItem.setText("Unknown");
+versionItem.setText("-");
+messageItem.setText(result);
                 }
             });
 
@@ -119,6 +142,39 @@ statusItem.setText(result);
             try {
                 if (connection != null) connection.close();
             } catch (Exception ignored) {}
-        }
+        private String getJsonValue(String json, String key) {
+    String search = "\"" + key + "\"";
+    int start = json.indexOf(search);
+
+    if (start < 0) return "-";
+
+    start = json.indexOf(':', start);
+    if (start < 0) return "-";
+
+    start++;
+
+    while (start < json.length() &&
+           json.charAt(start) == ' ') {
+        start++;
     }
-}
+
+    if (start >= json.length()) return "-";
+
+    if (json.charAt(start) == '"') {
+        start++;
+        int end = json.indexOf('"', start);
+
+        if (end < 0) return "-";
+
+        return json.substring(start, end);
+    }
+
+    int end = json.indexOf(',', start);
+    if (end < 0) {
+        end = json.indexOf('}', start);
+    }
+
+    if (end < 0) return "-";
+
+    return json.substring(start, end).trim();
+        }
