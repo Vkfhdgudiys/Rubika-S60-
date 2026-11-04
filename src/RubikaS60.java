@@ -87,7 +87,12 @@ public class RubikaS60 extends MIDlet implements CommandListener {
                 count++;
             }
 
-            final String result = "HTTP " + code + "\n" + body.toString();
+            StringBuffer resultBuffer = new StringBuffer();
+resultBuffer.append("HTTP ");
+resultBuffer.append(code);
+resultBuffer.append('\n');
+resultBuffer.append(body.toString());
+final String result = resultBuffer.toString();
 
             display.callSerially(new Runnable() {
                 public void run() {
