@@ -64,3 +64,10 @@ jobs:
           MicroEdition-Profile: MIDP-2.0
           MIDlet-Jar-URL: RubikaS60.jar
           EOF  
+      - name: Upload JAR and JAD
+        uses: actions/upload-artifact@v4
+        with:
+          name: Rubika-S60-build
+          path: |
+            build/RubikaS60.jar
+            build/RubikaS60.jad
