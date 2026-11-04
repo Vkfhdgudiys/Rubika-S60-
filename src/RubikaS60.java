@@ -103,7 +103,11 @@ final String result = resultBuffer.toString();
         } catch (final Exception error) {
             display.callSerially(new Runnable() {
                 public void run() {
-                    statusItem.setText("Connection failed: " + error.toString());
+                    StringBuffer errorBuffer = new StringBuffer();
+errorBuffer.append("Connection failed: ");
+errorBuffer.append(error.toString());
+final String result = errorBuffer.toString();
+statusItem.setText(result);
                 }
             });
 
