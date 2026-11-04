@@ -37,14 +37,23 @@ jobs:
             -bootclasspath lib/cldcapi11.jar \
             -classpath lib/midp21.jar \
             -d build/classes src/RubikaS60.java
-
-      - name: Package JAR
+                - name: Package JAR
         run: |
           mkdir -p build
+          cat > build/MANIFEST.MF <<'EOF'
+          Manifest-Version: 1.0
+          MIDlet-Name: Rubika S60
+          MIDlet-Version: 0.1
+          MIDlet-Vendor: Rubika S60 Project
+          MIDlet-1: Rubika S60,,RubikaS60
+          MicroEdition-Configuration: CLDC-1.1
+          MicroEdition-Profile: MIDP-2.0
+          EOF
+
           cd build/classes
-          jar cf ../RubikaS60.jar .
+          jar cfm ../RubikaS60.jar ../MANIFEST.MF .
           cd ../..
-          mkdir -p build/jad
+
           cat > build/RubikaS60.jad <<'EOF'
           MIDlet-Name: Rubika S60
           MIDlet-Version: 0.1
@@ -53,12 +62,4 @@ jobs:
           MicroEdition-Configuration: CLDC-1.1
           MicroEdition-Profile: MIDP-2.0
           MIDlet-Jar-URL: RubikaS60.jar
-          EOF
-
-      - name: Upload JAR and JAD
-        uses: actions/upload-artifact@v4
-        with:
-          name: Rubika-S60-build
-          path: |
-            build/RubikaS60.jar
-            build/RubikaS60.jad
+          EOF  
